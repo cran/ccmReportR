@@ -1,0 +1,16 @@
+c0f49e570dadc2a9c6debc536a3cf92b *DESCRIPTION
+b3f142202363daaf360641fc1cafaeef *LICENSE
+b79e7032e0575ed64afbc59386afcfe6 *NAMESPACE
+44f6fe96ac468593ad6e9b4b3c17230b *R/getAttribute.R
+42fd149a43b4c0edd49015cfc848233b *R/getCaseAttribute.R
+10932cb9f72da8238587c0a77a5d761f *R/getCases.R
+0dffb7a51735786304ac662408c850e7 *R/getHealthUnitByName.R
+b5d0ac4d37c9ebfc8c27dfe038594a54 *R/login.R
+78dac95fff1c86c0d8e6c7e9042d9e11 *R/makeTimestamp.R
+d69116628b46a2aa0971417983f6d898 *README.md
+f783a09720c5adfb000bec76bf6e8c6c *man/getAttribute.Rd
+10b5cc9dfffca3adbe3fe3ee7bdec294 *man/getCaseAttribute.Rd
+c0e4436a4a531a45e4cecfdd88a50c0e *man/getCases.Rd
+cfcf7046665ec588e52471b8f2349430 *man/getHealthUnitByName.Rd
+416528b4f90fd6a50d411fa6358882ee *man/login.Rd
+e6f1c8fa8abe8ec5d5a2659ea6296b83 *man/makeTimestamp.Rd
