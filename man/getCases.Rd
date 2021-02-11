@@ -2,12 +2,12 @@
 % Please edit documentation in R/getCases.R
 \name{getCases}
 \alias{getCases}
-\title{Execute a SOQL query against the Case object.}
+\title{Execute a SOQL query against the Case object}
 \usage{
 getCases(
   confirmedOnly = FALSE,
   from = "1990-01-01",
-  to = as.character(Sys.Date()),
+  to = as.character(Sys.time()),
   columns = "Id",
   healthUnit = NULL
 )
@@ -21,7 +21,7 @@ by default.}
 to include in the query. Defaults to the origin date of CCM.}
 
 \item{to}{Character scalar. Identifies the end of the date range
-to include in the query. Defaults to \code{Sys.Date()} (i.e. today's date).}
+to include in the query. Defaults to \code{Sys.time()} (i.e. today's date and time).}
 
 \item{columns}{Character scalar or character vector. Names the columns to
 return from the Case object. Defaults to \code{Id}}
@@ -39,14 +39,15 @@ The Case object maps to Investigations on the client-side.
 }
 \examples{
 \dontrun{
-Get all confirmed cases for Waterloo Region
+Get all confirmed cases for Durham Region
 cases <- getCases(
   confirmedOnly = TRUE,
   healthUnit = 'Durham Region Health Department'
 )
-Specify the data to return.
+Specify the data to return. This can be field names or labels
+N.B. Names are case sensitive!
 cases <- getCases(
-  columns = c("Id", "CCM_ReportedDate__c", "CCM_Episode_Date__c", "CCM_Episode_Date_Type__c")
+  columns = c("Id", "Reported Date", "Episode Date", "CCM_Episode_Date_Type__c")
 )
 Limit the data to a specific time period.
 cases <- getCases(

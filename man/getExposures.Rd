@@ -7,7 +7,7 @@
 getExposures(
   type = NULL,
   from = "1990-01-01",
-  to = as.character(Sys.Date()),
+  to = as.character(Sys.time()),
   columns = "Id",
   healthUnit = NULL
 )
@@ -27,7 +27,7 @@ to filter the query. Defaults to all exposure types. One or more of:
 to include in the query. Defaults to the origin date of CCM.}
 
 \item{to}{Character scalar. Identifies the end of the date range
-to include in the query. Defaults to \code{Sys.Date()} (i.e. today's date).}
+to include in the query. Defaults to \code{Sys.time()} (i.e. today's date and time).}
 
 \item{columns}{Character scalar or character vector. Names the columns to
 return from the exposure object. Defaults to \code{Id}.}
@@ -45,14 +45,15 @@ The Exposure object maps to Exposures on the client-side.
 }
 \examples{
 \dontrun{
-Get all community exposures for Durham
+Get all community exposures for Durham Region
 exposures <- getExposures(
   type = 'Community',
   healthUnit = 'Durham Region Health Department'
 )
-Specify the data to return.
+Specify the data to return. This can be field names or labels
+N.B. Names are case sensitive!
 exposures <- getExposures(
-  columns = c("Id", "Name", "CCM_Exposure_Setting__c")
+  columns = c("Id", "Exposure Name", "CCM_Exposure_Setting__c")
 )
 Limit the data to a specific time period.
 exposures <- getExposures(

@@ -1,4 +1,4 @@
-#' Execute a SOQL query against the Case object.
+#' Execute a SOQL query against the Case object
 #'
 #' `getCases()` returns a `tibble` of data from the CCM Case object.
 #' The Case object maps to Investigations on the client-side.
@@ -9,7 +9,7 @@
 #' @param from Character scalar. Identifies the start of the date range
 #'   to include in the query. Defaults to the origin date of CCM.
 #' @param to Character scalar. Identifies the end of the date range
-#'   to include in the query. Defaults to `Sys.Date()` (i.e. today's date).
+#'   to include in the query. Defaults to `Sys.time()` (i.e. today's date and time).
 #' @param columns Character scalar or character vector. Names the columns to
 #'   return from the Case object. Defaults to `Id`
 #' @param healthUnit Character vector or scalar. Names the Public Health Unit
@@ -19,14 +19,15 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' Get all confirmed cases for Waterloo Region
+#' Get all confirmed cases for Durham Region
 #' cases <- getCases(
 #'   confirmedOnly = TRUE,
 #'   healthUnit = 'Durham Region Health Department'
 #' )
-#' Specify the data to return.
+#' Specify the data to return. This can be field names or labels
+#' N.B. Names are case sensitive!
 #' cases <- getCases(
-#'   columns = c("Id", "CCM_ReportedDate__c", "CCM_Episode_Date__c", "CCM_Episode_Date_Type__c")
+#'   columns = c("Id", "Reported Date", "Episode Date", "CCM_Episode_Date_Type__c")
 #' )
 #' Limit the data to a specific time period.
 #' cases <- getCases(
@@ -37,21 +38,21 @@
 
 getCases <- function(
     confirmedOnly = FALSE,
-    from = "1990-01-01",
-    to = as.character(Sys.Date()),
+    from = '1990-01-01',
+    to = as.character(Sys.time()),
     columns = 'Id',
     healthUnit = NULL
   ) {
   # Translate each option to language Salesforce expects
   statements <- list()
   if (from > to) {
-    stop('Arguement `from` must preceed arguement `to`.\n', call. = FALSE)
+    stop('Argument `from` must precede argument `to`.\n', call. = FALSE)
   }
   statements$dateRange <- paste(
-    "CCM_ReportedDate__c>=",
+    'CCM_ReportedDate__c>=',
     makeTimestamp(from),
-    "+AND+",
-    "CCM_ReportedDate__c<=",
+    '+AND+',
+    'CCM_ReportedDate__c<=',
     makeTimestamp(to),
     sep = ''
   )
@@ -77,17 +78,17 @@ getCases <- function(
     } else {
       whereClause <- paste(
         whereClause,
-        "+AND+",
+        '+AND+',
         statements[[statement]],
         sep = ''
       )
     }
   }
   query <- paste(
-    "SELECT",
-    paste(columns, collapse = ','),
-    "FROM+Case",
-    "WHERE",
+    'SELECT',
+    paste(getDBLabels('Case', columns), collapse = ','),
+    'FROM+Case',
+    'WHERE',
     whereClause,
     sep = '+'
   )
@@ -109,7 +110,9 @@ getCases <- function(
   data <- jsonlite::fromJSON(httr::content(resp, 'text'))
   if ('MALFORMED_QUERY' %in% names(data)) {
     stop('The query was rejected due to a syntax error.\n', call. = FALSE)
-  } else {
-    return(data$records)
   }
+  if (data$totalSize == 0) {
+    return(tibble::as_tibble(data$records))
+  }
+  return(tibble::as_tibble(dplyr::select(data$records, !attributes)))
 }

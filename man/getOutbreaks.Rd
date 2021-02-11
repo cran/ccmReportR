@@ -2,7 +2,7 @@
 % Please edit documentation in R/getOutbreaks.R
 \name{getOutbreaks}
 \alias{getOutbreaks}
-\title{Execute a SOQL query against the Outbreak object.}
+\title{Execute a SOQL query against the Outbreak object}
 \usage{
 getOutbreaks(
   confirmedOnly = TRUE,
@@ -41,4 +41,23 @@ If the query succeeds, a \code{tibble} containing \code{columns}.
 \description{
 \code{getOutbreaks()} returns user-defined data from the CCM Outbreak object.
 The Outbreak object maps to Outbreaks on the client-side.
+}
+\examples{
+\dontrun{
+Get all open outbreaks for Durham.
+outbreaks <- getOutbreaks(
+  confirmedOnly = FALSE,
+  healthUnit = 'Durham Region Health Department'
+)
+Specify the data to return. This can be field names or labels
+N.B. Names are case sensitive!
+outbreaks <- getOutbreaks(
+  columns = c("Id", "Outbreak Name", "Outbreak Number")
+)
+Limit the data to a specific time period.
+outbreaks <- getOutbreaks(
+  from = "2021-01-01",
+  to = "2020-01-17"
+)
+}
 }

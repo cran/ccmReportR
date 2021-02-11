@@ -13,7 +13,7 @@
 #' @param from Character scalar. Identifies the start of the date range
 #'   to include in the query. Defaults to the origin date of CCM.
 #' @param to Character scalar. Identifies the end of the date range
-#'   to include in the query. Defaults to `Sys.Date()` (i.e. today's date).
+#'   to include in the query. Defaults to `Sys.time()` (i.e. today's date and time).
 #' @param columns Character scalar or character vector. Names the columns to
 #'   return from the exposure object. Defaults to `Id`.
 #' @param healthUnit Character vector or scalar. Names the Public Health Unit
@@ -23,14 +23,15 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' Get all community exposures for Durham
+#' Get all community exposures for Durham Region
 #' exposures <- getExposures(
 #'   type = 'Community',
 #'   healthUnit = 'Durham Region Health Department'
 #' )
-#' Specify the data to return.
+#' Specify the data to return. This can be field names or labels
+#' N.B. Names are case sensitive!
 #' exposures <- getExposures(
-#'   columns = c("Id", "Name", "CCM_Exposure_Setting__c")
+#'   columns = c("Id", "Exposure Name", "CCM_Exposure_Setting__c")
 #' )
 #' Limit the data to a specific time period.
 #' exposures <- getExposures(
@@ -42,14 +43,14 @@
 getExposures <- function(
     type = NULL,
     from = "1990-01-01",
-    to = as.character(Sys.Date()),
+    to = as.character(Sys.time()),
     columns = 'Id',
     healthUnit = NULL
   ) {
   # Translate each option to language Salesforce expects
   statements <- list()
   if (from > to) {
-    stop('Arguement `from` must preceed arguement `to`.\n', call. = FALSE)
+    stop('Argument `from` must precede argument `to`.\n', call. = FALSE)
   }
   statements$dateRange <- paste(
     "CCM_Date_Time_Arrived__c>=",
@@ -105,7 +106,7 @@ getExposures <- function(
   }
   query <- paste(
     "SELECT",
-    paste(columns, collapse = ','),
+    paste(getDBLabels('CCM_Exposure__c', columns), collapse = ','),
     "FROM+CCM_Exposure__c",
     "WHERE",
     whereClause,
@@ -129,7 +130,9 @@ getExposures <- function(
   data <- jsonlite::fromJSON(httr::content(resp, 'text'))
   if ('MALFORMED_QUERY' %in% names(data)) {
     stop('The query was rejected due to a syntax error.\n', call. = FALSE)
-  } else {
-    return(tibble::as_tibble(dplyr::select(data$records, !attributes)))
   }
+  if (data$totalSize == 0) {
+    return(tibble::as_tibble(data$records))
+  }
+  return(tibble::as_tibble(dplyr::select(data$records, !attributes)))
 }

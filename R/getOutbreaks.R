@@ -1,4 +1,4 @@
-#' Execute a SOQL query against the Outbreak object.
+#' Execute a SOQL query against the Outbreak object
 #'
 #' `getOutbreaks()` returns user-defined data from the CCM Outbreak object.
 #' The Outbreak object maps to Outbreaks on the client-side.
@@ -27,16 +27,17 @@
 #'   confirmedOnly = FALSE,
 #'   healthUnit = 'Durham Region Health Department'
 #' )
-#' Specify the data to return.
+#' Specify the data to return. This can be field names or labels
+#' N.B. Names are case sensitive!
 #' outbreaks <- getOutbreaks(
-#'   columns = c("Id", "Name", "CCM_SFDC_Outbreak_Number__c")
+#'   columns = c("Id", "Outbreak Name", "Outbreak Number")
 #' )
 #' Limit the data to a specific time period.
 #' outbreaks <- getOutbreaks(
 #'   from = "2021-01-01",
 #'   to = "2020-01-17"
 #' )
-#' }'
+#' }
 
 getOutbreaks <- function(
   confirmedOnly = TRUE,
@@ -46,10 +47,10 @@ getOutbreaks <- function(
   to = as.character(Sys.Date()),
   columns = "Id"
 ) {
-    # Translate each option to language Salesforce expects
+  # Translate each option to language Salesforce expects
   statements <- list()
   if (from > to) {
-    stop('Arguement `from` must preceed arguement `to`.\n', call. = FALSE)
+    stop('Argument `from` must precede argument `to`.\n', call. = FALSE)
   }
   statements$dateRange <- paste(
     "CCM_Reported_Date__c>=",
@@ -94,7 +95,7 @@ getOutbreaks <- function(
   }
   query <- paste(
     "SELECT",
-    paste(columns, collapse = ','),
+    paste(getDBLabels('Outbreak__c', columns), collapse = ','),
     "FROM+Outbreak__c",
     "WHERE",
     whereClause,
@@ -118,7 +119,10 @@ getOutbreaks <- function(
   data <- jsonlite::fromJSON(httr::content(resp, 'text'))
   if ('MALFORMED_QUERY' %in% names(data)) {
     stop('The query was rejected due to a syntax error.\n', call. = FALSE)
-  } else {
-    return(tibble::as_tibble(dplyr::select(data$records, !attributes)))
   }
+  if (data$totalSize == 0) {
+    return(tibble::as_tibble(data$records))
+  }
+  return(tibble::as_tibble(dplyr::select(data$records, !attributes)))
+
 }
